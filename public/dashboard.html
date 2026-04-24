@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – PhysioPlus Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css"/>
+  <style>
+    :root {
+      --primary: #1a56db; --sidebar-w: 260px;
+      --bg: #f4f6fb; --card: #ffffff;
+      --text: #1c1c2e; --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); margin: 0; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); background: #0d1b3e; height: 100vh;
+      position: fixed; left: 0; top: 0; overflow-y: auto;
+      display: flex; flex-direction: column; z-index: 100;
+      transition: transform 0.3s;
+    }
+    .sidebar-logo { padding: 25px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-logo h5 { color: #fff; margin: 0; font-size: 1.2rem; font-weight: 700; }
+    .sidebar-logo small { color: rgba(255,255,255,0.5); font-size: 0.75rem; }
+
+    .sidebar nav { padding: 20px 12px; flex: 1; }
+    .nav-label { color: rgba(255,255,255,0.3); font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; padding: 8px 10px 6px; }
+    .nav-item a {
+      display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+      color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 10px;
+      font-size: 0.93rem; font-weight: 500; transition: all 0.2s; margin-bottom: 2px;
+    }
+    .nav-item a:hover, .nav-item a.active {
+      background: rgba(26,86,219,0.4); color: #fff;
+    }
+    .nav-item a i { width: 20px; text-align: center; font-size: 0.95rem; }
+
+    .sidebar-footer { padding: 15px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-footer button {
+      width: 100%; background: rgba(239,68,68,0.15); color: #fca5a5;
+      border: none; border-radius: 10px; padding: 10px; cursor: pointer;
+      font-size: 0.9rem; font-weight: 500;
+    }
+    .sidebar-footer button:hover { background: rgba(239,68,68,0.25); }
+
+    /* MAIN CONTENT */
+    .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+    .topbar {
+      background: var(--card); padding: 16px 28px; display: flex;
+      align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h4 { margin: 0; font-weight: 700; color: var(--text); }
+    .admin-chip { background: var(--bg); border-radius: 25px; padding: 8px 16px;
+      display: flex; align-items: center; gap: 10px; }
+    .admin-avatar { width: 32px; height: 32px; background: var(--primary);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.85rem; font-weight: 700; }
+
+    .content { padding: 28px; }
+
+    /* STAT CARDS */
+    .stat-card {
+      background: var(--card); border-radius: 16px; padding: 24px;
+      border: 1px solid var(--border); transition: all 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(26,86,219,0.1); }
+    .stat-icon { width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+    .stat-value { font-size: 2.2rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-label { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+    .stat-trend { font-size: 0.82rem; font-weight: 600; }
+
+    /* CARDS */
+    .panel { background: var(--card); border-radius: 16px; border: 1px solid var(--border); }
+    .panel-header { padding: 18px 22px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; }
+    .panel-header h6 { margin: 0; font-weight: 700; font-size: 1rem; }
+    .panel-body { padding: 22px; }
+
+    /* TABLE */
+    .table { font-size: 0.9rem; }
+    .table th { color: var(--muted); font-weight: 600; font-size: 0.82rem;
+      text-transform: uppercase; letter-spacing: 0.5px; border: none; padding: 10px 12px; }
+    .table td { padding: 12px; vertical-align: middle; border-color: var(--border); }
+    .badge-status { padding: 5px 12px; border-radius: 25px; font-size: 0.78rem; font-weight: 600; }
+    .status-pending { background: #fff7ed; color: #c2410c; }
+    .status-confirmed { background: #eff6ff; color: #1d4ed8; }
+    .status-completed { background: #f0fdf4; color: #15803d; }
+    .status-cancelled { background: #fef2f2; color: #b91c1c; }
+
+    /* CALENDAR */
+    #calendar { min-height: 400px; }
+    .fc .fc-toolbar-title { font-size: 1.1rem; font-weight: 700; }
+    .fc .fc-button { background: var(--primary); border-color: var(--primary); font-size: 0.85rem; }
+    .fc .fc-event { border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+
+    /* ACTION BUTTONS */
+    .btn-sm-icon { width: 32px; height: 32px; border-radius: 8px; display: inline-flex;
+      align-items: center; justify-content: center; border: none; cursor: pointer; transition: all 0.15s; }
+
+    /* Mobile sidebar toggle */
+    .sidebar-toggle { display: none; }
+    @media(max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .sidebar-toggle { display: flex; }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+      .sidebar-overlay.show { display: block; }
+    }
+
+    .loading { text-align: center; padding: 40px; color: var(--muted); }
+    .hamburger { background: none; border: none; font-size: 1.3rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar Overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h5><i class="fas fa-heartbeat me-2" style="color:#1a56db;"></i>PhysioPlus</h5>
+    <small>Admin Dashboard</small>
+  </div>
+  <nav>
+    <div class="nav-label">Main</div>
+    <div class="nav-item">
+      <a href="/dashboard" class="active"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    </div>
+    <div class="nav-item">
+      <a href="#" onclick="showSection('appointments')"><i class="fas fa-calendar-check"></i>Appointments</a>
+    </div>
+    <div class="nav-item">
+      <a href="/patients"><i class="fas fa-users"></i>Patients</a>
+    </div>
+    <div class="nav-label mt-2">Analytics</div>
+    <div class="nav-item">
+      <a href="#" onclick="showSection('calendar')"><i class="fas fa-calendar-alt"></i>Calendar View</a>
+    </div>
+    <div class="nav-item">
+      <a href="#" onclick="showSection('analytics')"><i class="fas fa-chart-bar"></i>Analytics</a>
+    </div>
+    <div class="nav-label mt-2">System</div>
+    <div class="nav-item">
+      <a href="/"><i class="fas fa-globe"></i>View Website</a>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <button onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+      <button class="hamburger sidebar-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h4 id="page-title">Dashboard</h4>
+    </div>
+    <div class="admin-chip">
+      <div class="admin-avatar" id="admin-initials">A</div>
+      <span id="admin-name" class="fw-500 d-none d-md-block">Admin</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD SECTION -->
+    <div id="section-dashboard">
+      <!-- Stat Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value" id="stat-patients">—</div>
+                <div class="stat-label">Total Patients</div>
+              </div>
+              <div class="stat-icon" style="background:#eff6ff; color:#1a56db;">👥</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value" id="stat-today">—</div>
+                <div class="stat-label">Today's Appointments</div>
+              </div>
+              <div class="stat-icon" style="background:#f0fdf4; color:#15803d;">📅</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value" id="stat-total">—</div>
+                <div class="stat-label">Total Appointments</div>
+              </div>
+              <div class="stat-icon" style="background:#fff7ed; color:#c2410c;">📋</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="stat-value" id="stat-pending">—</div>
+                <div class="stat-label">Pending Approvals</div>
+              </div>
+              <div class="stat-icon" style="background:#fef3c7; color:#d97706;">⏳</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart + Today's Appointments -->
+      <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+          <div class="panel">
+            <div class="panel-header">
+              <h6><i class="fas fa-chart-line me-2 text-primary"></i>Monthly Appointments</h6>
+              <select class="form-select form-select-sm" style="width:100px;" id="chart-year" onchange="loadChart()">
+                <option value="2024">2024</option>
+                <option value="2025" selected>2025</option>
+              </select>
+            </div>
+            <div class="panel-body">
+              <canvas id="monthlyChart" height="100"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="panel h-100">
+            <div class="panel-header">
+              <h6><i class="fas fa-sun me-2 text-warning"></i>Today's Schedule</h6>
+            </div>
+            <div class="panel-body p-0" id="today-list" style="max-height:280px; overflow-y:auto;">
+              <div class="loading">Loading...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Appointments Table -->
+      <div class="panel">
+        <div class="panel-header">
+          <h6><i class="fas fa-list me-2 text-primary"></i>Recent Appointments</h6>
+          <button class="btn btn-primary btn-sm rounded-pill px-3" onclick="showSection('appointments')">
+            View All
+          </button>
+        </div>
+        <div class="panel-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead><tr>
+                <th>Patient</th><th>Date</th><th>Time</th><th>Problem</th><th>Status</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="recent-appointments">
+                <tr><td colspan="6" class="text-center text-muted py-4">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS SECTION -->
+    <div id="section-appointments" style="display:none;">
+      <div class="panel">
+        <div class="panel-header">
+          <h6><i class="fas fa-calendar-check me-2 text-primary"></i>All Appointments</h6>
+          <div class="d-flex gap-2">
+            <input type="date" id="filter-date" class="form-control form-control-sm" onchange="loadAllAppointments()" style="width:155px;"/>
+            <select id="filter-status" class="form-select form-select-sm" onchange="loadAllAppointments()" style="width:130px;">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead><tr>
+                <th>Patient</th><th>Phone</th><th>Date</th><th>Time</th><th>Problem</th><th>Status</th><th>Payment</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="all-appointments">
+                <tr><td colspan="8" class="text-center text-muted py-4">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR SECTION -->
+    <div id="section-calendar" style="display:none;">
+      <div class="panel">
+        <div class="panel-header">
+          <h6><i class="fas fa-calendar-alt me-2 text-primary"></i>Calendar View</h6>
+        </div>
+        <div class="panel-body">
+          <div id="calendar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS SECTION -->
+    <div id="section-analytics" style="display:none;">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="panel">
+            <div class="panel-header"><h6>Appointment Status Distribution</h6></div>
+            <div class="panel-body"><canvas id="statusChart" height="200"></canvas></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="panel">
+            <div class="panel-header"><h6>Payment Status</h6></div>
+            <div class="panel-body"><canvas id="paymentChart" height="200"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<script>
+// ---- AUTH CHECK ----
+const token = localStorage.getItem('adminToken');
+if (!token) window.location.href = '/admin';
+
+const adminName = localStorage.getItem('adminName') || 'Admin';
+document.getElementById('admin-name').textContent = adminName;
+document.getElementById('admin-initials').textContent = adminName.charAt(0).toUpperCase();
+
+const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+// ---- SIDEBAR ----
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+// ---- LOGOUT ----
+function logout() {
+  localStorage.removeItem('adminToken');
+  localStorage.removeItem('adminName');
+  window.location.href = '/admin';
+}
+
+// ---- SECTION NAVIGATION ----
+function showSection(name) {
+  ['dashboard','appointments','calendar','analytics'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? 'block' : 'none';
+  });
+  document.getElementById('page-title').textContent = name.charAt(0).toUpperCase() + name.slice(1);
+
+  // Update active nav
+  document.querySelectorAll('.nav-item a').forEach(a => a.classList.remove('active'));
+
+  if (name === 'calendar') initCalendar();
+  if (name === 'analytics') loadAnalytics();
+  if (name === 'appointments') loadAllAppointments();
+  closeSidebar();
+}
+
+// ---- LOAD DASHBOARD ----
+async function loadDashboard() {
+  try {
+    const res = await fetch('/api/dashboard/stats', { headers });
+    const data = await res.json();
+    document.getElementById('stat-patients').textContent = data.totalPatients;
+    document.getElementById('stat-today').textContent = data.todayAppointments;
+    document.getElementById('stat-total').textContent = data.totalAppointments;
+    document.getElementById('stat-pending').textContent = data.pendingAppointments;
+  } catch(e) { console.error(e); }
+
+  loadChart();
+  loadTodaySchedule();
+  loadRecentAppointments();
+}
+
+// ---- MONTHLY CHART ----
+let chartInstance;
+async function loadChart() {
+  const year = document.getElementById('chart-year').value;
+  try {
+    const res = await fetch(`/api/dashboard/monthly?year=${year}`, { headers });
+    const data = await res.json();
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.labels,
+        datasets: [{
+          label: 'Appointments',
+          data: data.data,
+          backgroundColor: 'rgba(26,86,219,0.15)',
+          borderColor: '#1a56db',
+          borderWidth: 2,
+          borderRadius: 8,
+          hoverBackgroundColor: 'rgba(26,86,219,0.35)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { stepSize: 1 } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  } catch(e) { console.error(e); }
+}
+
+// ---- TODAY SCHEDULE ----
+async function loadTodaySchedule() {
+  try {
+    const res = await fetch('/api/appointments/today', { headers });
+    const appointments = await res.json();
+    const el = document.getElementById('today-list');
+    if (!appointments.length) {
+      el.innerHTML = '<div class="text-center text-muted py-4">No appointments today</div>';
+      return;
+    }
+    el.innerHTML = appointments.map(a => `
+      <div class="px-3 py-2 border-bottom d-flex align-items-center gap-3">
+        <span class="badge bg-primary rounded-pill" style="font-size:0.78rem; min-width:58px;">${a.time}</span>
+        <div>
+          <div class="fw-600" style="font-size:0.88rem;">${a.patientName}</div>
+          <div class="text-muted" style="font-size:0.78rem;">${a.problem || 'General'}</div>
+        </div>
+        <span class="ms-auto badge-status status-${a.status}">${a.status}</span>
+      </div>
+    `).join('');
+  } catch(e) {}
+}
+
+// ---- RECENT APPOINTMENTS TABLE ----
+async function loadRecentAppointments() {
+  try {
+    const res = await fetch('/api/appointments?limit=8', { headers });
+    const appointments = await res.json();
+    const tbody = document.getElementById('recent-appointments');
+    if (!appointments.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No appointments found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = appointments.slice(0, 8).map(a => `
+      <tr>
+        <td><strong>${a.patientName}</strong></td>
+        <td>${a.date}</td>
+        <td>${a.time}</td>
+        <td>${a.problem || '—'}</td>
+        <td><span class="badge-status status-${a.status}">${a.status}</span></td>
+        <td>
+          <button class="btn-sm-icon bg-success-subtle text-success" onclick="updateStatus('${a._id}','confirmed')" title="Confirm">✓</button>
+          <button class="btn-sm-icon bg-danger-subtle text-danger ms-1" onclick="deleteAppointment('${a._id}')" title="Delete">✕</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+// ---- ALL APPOINTMENTS ----
+  async function loadAllAppointments() {
+  const date = document.getElementById('filter-date').value;
+  const status = document.getElementById('filter-status').value;
+  let url = '/api/appointments?';
+  if (date) url += `date=${date}&`;
+  if (status) url += `status=${status}`;
+  try {
+    const res = await fetch(url, { headers });
+    const appointments = await res.json();
+    const tbody = document.getElementById('all-appointments');
+    if (!appointments.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No appointments found</td></tr>';
+      return;
+    }
+    tbody.innerHTML = appointments.map(a => `
+      <tr>
+        <td><strong>${a.patientName}</strong></td>
+        <td>${a.phone}</td>
+        <td>${a.date}</td>
+        <td>${a.time}</td>
+        <td>${a.problem || '—'}</td>
+        <td>
+          <select class="form-select form-select-sm" style="width:115px;" onchange="updateStatus('${a._id}', this.value)">
+            <option value="pending" ${a.status==='pending'?'selected':''}>Pending</option>
+            <option value="confirmed" ${a.status==='confirmed'?'selected':''}>Confirmed</option>
+            <option value="completed" ${a.status==='completed'?'selected':''}>Completed</option>
+            <option value="cancelled" ${a.status==='cancelled'?'selected':''}>Cancelled</option>
+          </select>
+        </td>
+        <td><span class="badge-status ${a.paymentStatus === 'paid' ? 'status-completed' : 'status-pending'}">${a.paymentStatus}</span></td>
+        <td>
+          <button class="btn-sm-icon bg-danger-subtle text-danger" onclick="deleteAppointment('${a._id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  } catch(e) {}
+}
+
+async function updateStatus(id, status) {
+  await fetch(`/api/appointments/${id}`, {
+    method: 'PATCH', headers,
+    body: JSON.stringify({ status })
+  });
+  loadDashboard();
+}
+
+async function deleteAppointment(id) {
+  if (!confirm('Delete this appointment?')) return;
+  await fetch(`/api/appointments/${id}`, { method: 'DELETE', headers });
+  loadDashboard();
+  if (document.getElementById('section-appointments').style.display !== 'none') loadAllAppointments();
+}
+
+// ---- CALENDAR ----
+let calendarInit = false;
+async function initCalendar() {
+  if (calendarInit) return;
+  calendarInit = true;
+  const res = await fetch('/api/dashboard/calendar', { headers });
+  const events = await res.json();
+  const calEl = document.getElementById('calendar');
+  const cal = new FullCalendar.Calendar(calEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+    events,
+    eventClick: function(info) {
+      alert(`${info.event.title}\nStatus: ${info.event.backgroundColor === '#057a55' ? 'Completed' : info.event.backgroundColor === '#1a56db' ? 'Confirmed' : 'Pending'}`);
+    }
+  });
+  cal.render();
+}
+
+// ---- ANALYTICS ----
+async function loadAnalytics() {
+  const res = await fetch('/api/appointments', { headers });
+  const appointments = await res.json();
+
+  const statusCounts = { pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+  const paymentCounts = { paid: 0, pending: 0, failed: 0 };
+  appointments.forEach(a => {
+    statusCounts[a.status] = (statusCounts[a.status] || 0) + 1;
+    paymentCounts[a.paymentStatus] = (paymentCounts[a.paymentStatus] || 0) + 1;
+  });
+
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{ data: Object.values(statusCounts),
+        backgroundColor: ['#ff8800','#1a56db','#057a55','#e02424'] }]
+    }
+  });
+
+  new Chart(document.getElementById('paymentChart'), {
+    type: 'pie',
+    data: {
+      labels: Object.keys(paymentCounts),
+      datasets: [{ data: Object.values(paymentCounts),
+        backgroundColor: ['#057a55','#ff8800','#e02424'] }]
+    }
+  });
+}
+
+// ---- INIT ----
+loadDashboard();
+</script>
+</body>
+</html>
+async function loadAllAppointme
