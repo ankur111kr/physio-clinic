@@ -1,0 +1,252 @@
+/* ============================================================
+   PHYSIOTHERAPY CLINIC - GLOBAL STYLES
+   style.css — Shared across all pages
+   ============================================================ */
+
+/* ---- RESET & BASE ---- */
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --primary:       #1a56db;
+  --primary-dark:  #0f3ba8;
+  --primary-light: #eff6ff;
+  --accent:        #00c4cc;
+  --success:       #057a55;
+  --warning:       #d97706;
+  --danger:        #e02424;
+  --bg:            #f4f6fb;
+  --card:          #ffffff;
+  --text:          #1c1c2e;
+  --muted:         #6b7280;
+  --border:        #e5e7eb;
+  --sidebar-w:     260px;
+  --radius:        16px;
+  --radius-sm:     10px;
+  --shadow:        0 4px 20px rgba(26,86,219,0.10);
+  --shadow-lg:     0 20px 50px rgba(26,86,219,0.18);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- TYPOGRAPHY ---- */
+h1,h2,h3,h4,h5,h6 { font-weight: 700; }
+.fw-500 { font-weight: 500 !important; }
+.fw-600 { font-weight: 600 !important; }
+.fw-700 { font-weight: 700 !important; }
+
+/* ---- SCROLLBAR ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ---- BUTTONS ---- */
+.btn { font-weight: 600; letter-spacing: 0.2px; transition: all 0.2s; }
+.btn-primary {
+  background: var(--primary); border-color: var(--primary);
+}
+.btn-primary:hover {
+  background: var(--primary-dark); border-color: var(--primary-dark);
+  transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,86,219,0.25);
+}
+.btn-outline-primary { color: var(--primary); border-color: var(--primary); }
+.btn-outline-primary:hover {
+  background: var(--primary); transform: translateY(-1px);
+}
+
+/* ---- FORM CONTROLS ---- */
+.form-control, .form-select {
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 15px;
+  font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.1);
+  outline: none;
+}
+.form-label { font-weight: 500; color: #374151; font-size: 0.9rem; margin-bottom: 6px; }
+textarea.form-control { resize: vertical; min-height: 80px; }
+
+/* ---- CARDS ---- */
+.card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: all 0.25s;
+}
+.card:hover { box-shadow: var(--shadow-lg); }
+
+/* ---- BADGES ---- */
+.badge { font-weight: 600; letter-spacing: 0.3px; }
+
+/* ---- ALERTS ---- */
+.alert { border-radius: 12px; border: none; font-weight: 500; }
+.alert-success { background: #d1fae5; color: #065f46; }
+.alert-danger  { background: #fee2e2; color: #991b1b; }
+.alert-warning { background: #fef3c7; color: #92400e; }
+.alert-info    { background: #dbeafe; color: #1e40af; }
+
+/* ---- MODAL ---- */
+.modal-content { border-radius: 20px; border: none; overflow: hidden; }
+.modal-backdrop { backdrop-filter: blur(4px); }
+
+/* ---- TABLE ---- */
+.table { font-size: 0.9rem; }
+.table > :not(caption) > * > * { padding: 12px 14px; }
+.table thead th {
+  color: var(--muted); font-weight: 600;
+  font-size: 0.8rem; text-transform: uppercase;
+  letter-spacing: 0.5px; background: #f9fafb;
+  border-bottom: 2px solid var(--border);
+}
+.table tbody tr { border-bottom: 1px solid var(--border); }
+.table tbody tr:hover { background: #f8faff; }
+.table tbody tr:last-child { border-bottom: none; }
+
+/* ---- SPINNER ---- */
+.spinner-border { border-width: 3px; }
+.page-loader {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.9);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; backdrop-filter: blur(4px);
+}
+.page-loader .loader-inner {
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---- UTILITY CLASSES ---- */
+.text-primary-custom { color: var(--primary) !important; }
+.bg-primary-light { background: var(--primary-light) !important; }
+.rounded-xl { border-radius: var(--radius) !important; }
+.rounded-2xl { border-radius: 20px !important; }
+.shadow-card { box-shadow: var(--shadow) !important; }
+.shadow-card-lg { box-shadow: var(--shadow-lg) !important; }
+
+/* ---- SECTION PADDING ---- */
+.section-py { padding: 80px 0; }
+.section-py-sm { padding: 50px 0; }
+
+/* ---- STATUS BADGES (shared) ---- */
+.badge-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 25px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.status-pending   { background: #fff7ed; color: #c2410c; }
+.status-confirmed { background: #eff6ff; color: #1d4ed8; }
+.status-completed { background: #f0fdf4; color: #15803d; }
+.status-cancelled { background: #fef2f2; color: #b91c1c; }
+.status-paid      { background: #f0fdf4; color: #15803d; }
+.status-failed    { background: #fef2f2; color: #b91c1c; }
+
+/* ---- ACTION ICON BUTTON ---- */
+.btn-icon {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  border: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; transition: all 0.15s;
+}
+.btn-icon:hover { filter: brightness(0.92); transform: scale(1.05); }
+
+/* ---- EMPTY STATE ---- */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--muted);
+}
+.empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.4; }
+.empty-state h6 { font-weight: 600; color: #374151; margin-bottom: 8px; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ---- TOAST NOTIFICATION ---- */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+}
+.toast-msg {
+  background: #1c1c2e; color: #fff; padding: 14px 20px;
+  border-radius: 12px; font-size: 0.9rem; font-weight: 500;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease, fadeOut 0.4s ease 2.8s forwards;
+  display: flex; align-items: center; gap: 10px; max-width: 340px;
+}
+.toast-msg.success { border-left: 4px solid #22c55e; }
+.toast-msg.error   { border-left: 4px solid #ef4444; }
+.toast-msg.info    { border-left: 4px solid var(--primary); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; } to { opacity: 0; transform: translateY(10px); }
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 992px) {
+  .section-py { padding: 50px 0; }
+}
+@media (max-width: 576px) {
+  .section-py { padding: 35px 0; }
+  h1 { font-size: 1.9rem !important; }
+  h2 { font-size: 1.6rem !important; }
+}
+
+/* ---- PRINT STYLES ---- */
+@media print {
+  body { background: #fff; }
+  .sidebar, .topbar, .no-print, .btn, nav { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .panel { border: 1px solid #ccc; box-shadow: none; }
+}
+
+/* ---- ANIMATIONS ---- */
+.fade-up {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34,197,94,0.4);
+  animation: pulse-anim 2s infinite;
+  display: inline-block;
+}
+@keyframes pulse-anim {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+
+/* ---- GRADIENT TEXT ---- */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---- CLINIC INFO RIBBON ---- */
+.info-ribbon {
+  background: var(--primary); color: #fff;
+  padding: 8px 0; font-size: 0.82rem; font-weight: 500;
+}
+.info-ribbon a { color: rgba(255,255,255,0.85); text-decoration: none; }
+.info-ribbon a:hover { color: #fff; }
+.info-ribbon a:hover { color: #fff; }
